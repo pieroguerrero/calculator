@@ -6,6 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <script src="https://kit.fontawesome.com/86acbfc7fb.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
 
     <script type="text/javascript" src="script.js" defer></script>
@@ -13,10 +15,93 @@
 </head>
 
 <body>
+    <header></header>
+    <div class="calculator">
+        <div class="screen">
+            <div class="calc">
+                <div class="light2"></div>
+                <input id="entry" class="entryOff" type="text" value="0" readonly>
+                <input type="text" class="result" value="0123456789" readonly>
+                <p class="casio">CASIO fx-350TL</p>
+            </div>
 
-    <input class="input-panel" type="text">
-    <p class="result"></p>
-    
+        </div>
+        <div class="retro-screen">
+            <div class="switch-on-off">
+                <div class="button-on">
+                    <div class="inner-button-on"></div>
+                    <div class="switch-line"></div>
+                    <button id="turningOn" class="calc-off">
+                    </button>
+                </div>
+                <div class="on">
+                    <div id="smLedBord" class="ledOff"></div>
+                </div>
+            </div>
+            <div class="logo">
+                <div class="brand">
+                    <p>RETRO</p>
+                    <p>CALCULATOR</p>
+                </div>
+                <div class="solar">
+                    <div class="sub-solar">
+                        <div class="light"></div>
+                        <hr width="1" size="26">
+                        <hr width="1" size="26">
+                        <hr width="1" size="26">
+                        <hr width="1" size="26">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="row">
+                <button class="clear key">AC</button>
+                <button class="brackets operator key" value="()">( )</button>
+                <button class="exponential operator key" value="^">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="division operator key" value="/">
+                    <i class="fas fa-divide" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="row">
+                <button class="number key" value="7">7</button>
+                <button class="number key" value="8">8</button>
+                <button class="number key" value="9">9</button>
+                <button class="multiplication operator key" value="*">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="row">
+                <button class="number key" value="4">4</button>
+                <button class="number key" value="5">5</button>
+                <button class="number key" value="6">6</button>
+                <button class="subtranction operator key" value="-">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+            <div class="row">
+                <button class="number key" value="1">1</button>
+                <button class="number key" value="2">2</button>
+                <button class="number key" value="3">3</button>
+                <button class="sum operator key" value="+">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="row">
+                <button class="number key" value="0">0</button>
+                <button class="number key" value=".">.</button>
+                <button class="erase key">
+                    <i class="fas fa-backspace"></i>
+                </button>
+                <button class="equal key">
+                    <i class="fas fa-equals"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <footer></footer>
 </body>
 
 </html>

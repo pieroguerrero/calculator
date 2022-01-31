@@ -1,6 +1,94 @@
 
 //ordered according their operation precendece
-const ORDERED_OPERATORS_LIST = ["^", "/", "*", "+", "-"];
+const ORDERED_OPERATORS_LIST = [["^", ""], ["/", "*"], ["+", "-"]];
+const INPUT_DISPLAY_ELEMENT = document.getElementById("entry");
+
+function computeResult(e) {
+
+    let input = "Input not valid";
+    let validInput = false;
+
+    if (e.target.nodeName.toLowerCase() === "button") {
+        input = e.target.value;
+
+        //falta corregir estp, que pasa si ingresan: 10 y luego viene un 0 mas, en ese caso removera el 0 del numero 10 ingresado anteriormente
+        if (INPUT_DISPLAY_ELEMENT.value.charAt(INPUT_DISPLAY_ELEMENT.value.length - 1) === "0") {
+            INPUT_DISPLAY_ELEMENT.value = INPUT_DISPLAY_ELEMENT.value.slice(0, -1);
+        }
+
+
+    } else {
+        input = e.target.parentNode.value;
+    }
+
+
+    if (input !== "()") {
+
+        if (!((e.target.nodeName.toLowerCase() !== "button") && (INPUT_DISPLAY_ELEMENT.value.indexOf(input)) == (INPUT_DISPLAY_ELEMENT.value.length - 1))) {
+
+            if (!(INPUT_DISPLAY_ELEMENT.value.length === 0 && "^/*+-".includes(input))) {
+                INPUT_DISPLAY_ELEMENT.value += input;
+                calculate(INPUT_DISPLAY_ELEMENT.value);
+            }
+
+        }
+
+
+
+    }
+}
+
+function turnOn(calcSwitch) {
+
+    const screenTxt = document.getElementById("entry");
+    const led = document.getElementById('smLedBord');
+
+    calcSwitch.classList.remove('calc-off');
+    calcSwitch.classList.add('calc-on');
+
+    screenTxt.classList.remove('entryOff');
+    screenTxt.classList.add('entryOn');
+
+    led.classList.remove('ledOff');
+    led.classList.add('ledOn');
+
+    const btnNumbersAndOperators = document.querySelectorAll(".number, .operator");
+    btnNumbersAndOperators.forEach(key => key.addEventListener("click", computeResult));
+
+    const btnAC = document.querySelector(".clear.key");
+    //btnAC.addEventListener(click)
+
+}
+
+function turnOff(calcSwitch) {
+
+    const screenTxt = document.getElementById("entry");
+    const led = document.getElementById('smLedBord');
+
+    calcSwitch.classList.remove('calc-on');
+    calcSwitch.classList.add('calc-off');
+
+    screenTxt.classList.remove('entryOn');
+    screenTxt.classList.add('entryOff');
+
+    led.classList.remove('ledOn');
+    led.classList.add('ledOff');
+
+}
+
+function switchOnOff(e) {
+
+    const swi = e.target;
+
+    if (swi.classList.contains("calc-off")) {
+
+        turnOn(swi);
+
+    } else if (swi.classList.contains("calc-on")) {
+
+        turnOff(swi);
+    }
+}
 
 function getResult(num1, op, num2) {
     let result;
@@ -29,25 +117,45 @@ function getResult(num1, op, num2) {
     return result;
 }
 
-function calculateOperation(arrFormula = [], operator = "") {
+function processFormula(arrFormula = [], operatorIndex, operator) {
+
+    const firstOperand = Number(arrFormula[operatorIndex - 1]);
+    const secondOperand = Number(arrFormula[operatorIndex + 1]);
+
+    const result = getResult(firstOperand, operator, secondOperand);
+
+    //removing the previous calculation just finished
+    arrFormula.splice(operatorIndex - 1, 3);
+
+    //Adding the last result found
+    arrFormula.splice(operatorIndex - 1, 0, result);
+
+}
+function calculateOperation(arrFormula = [], operators = []) {
 
     let hasOperations = true;
 
     while (hasOperations) {
-        const operatiorIndex = arrFormula.indexOf(operator);
 
-        if (operatiorIndex >= 0) {
-            const firstOperand = Number(arrFormula[operatiorIndex - 1]);
-            const secondOperand = Number(arrFormula[operatiorIndex + 1]);
+        const operatorIndex0 = arrFormula.indexOf(operators[0]);
+        const operatorIndex1 = arrFormula.indexOf(operators[1]);
 
-            const result = getResult(firstOperand, operator, secondOperand);
+        if (!(operatorIndex0 > 0 || operatorIndex1 > 0)) {
 
-            //removing the previous calculation just finished
-            arrFormula.splice(operatiorIndex - 1, 3);
+            hasOperations = false;
+        } else if (operatorIndex0 > 0 && operatorIndex1 <= 0) {
 
-            //Adding the last result found
-            arrFormula.splice(operatiorIndex - 1, 0, result);
-        } else hasOperations = false;
+            processFormula(arrFormula, operatorIndex0, operators[0]);
+        } else if (operatorIndex0 <= 0 && operatorIndex1 > 0) {
+
+            processFormula(arrFormula, operatorIndex1, operators[1]);
+        } else {
+
+            const index = (operatorIndex0 < operatorIndex1) ? operatorIndex0 : operatorIndex1;
+            const operator = (operatorIndex0 < operatorIndex1) ? operators[0] : operators[1];
+
+            processFormula(arrFormula, index, operator);
+        }
     }
 
     return arrFormula;
@@ -72,11 +180,10 @@ function getArrayFormula(userInput) {
 
 function evaluateFormula(arrFormula = []) {
 
-    for (const operator of ORDERED_OPERATORS_LIST) {
+    for (const operators of ORDERED_OPERATORS_LIST) {
 
-        if ((arrFormula.length % 2 !== 0) && (arrFormula.length > 3)) {
-            arrFormula = calculateOperation(arrFormula, operator);
-            console.table(arrFormula);
+        if ((arrFormula.length % 2 !== 0) && (arrFormula.length >= 3)) {
+            arrFormula = calculateOperation(arrFormula, operators);
         }
 
     }
@@ -84,28 +191,38 @@ function evaluateFormula(arrFormula = []) {
     return Number(arrFormula[0]);
 }
 
-function calculate(e) {
+function calculate(userInput) {
 
-    const userInput = "" + e.target.value;
+    //const userInput = "" + e.target.value;    
 
     if (userInput.length > 0) {
 
         let arrFormula = getArrayFormula(userInput);
 
-        if ((arrFormula.length % 2 !== 0) && (arrFormula.length > 3)) {
+        if ((arrFormula.length % 2 !== 0) && (arrFormula.length >= 3)) {
 
             const result = evaluateFormula(arrFormula);
 
             const paraResult = document.querySelector(".result");
-            paraResult.textContent = "" + result;
+            paraResult.value = "" + result;
         }
     }
 
 }
 
+function entryKey(e) {
+    INPUT_DISPLAY_ELEMENT.value += e.value;
+}
+
 function start() {
-    const btnInputPanel = document.querySelector(".input-panel");
-    btnInputPanel.addEventListener("input", calculate);
+
+    //INPUT_DISPLAY_ELEMENT.addEventListener("input", calculate);
+
+    const swi = document.getElementById("turningOn");
+    swi.addEventListener("click", switchOnOff);
+
+
+
 }
 
 start();
