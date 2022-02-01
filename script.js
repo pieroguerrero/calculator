@@ -3,51 +3,98 @@
 const ORDERED_OPERATORS_LIST = [["^", ""], ["/", "*"], ["+", "-"]];
 const INPUT_DISPLAY_ELEMENT = document.getElementById("entry");
 
-function computeResult(e) {
-
-    let input = "Input not valid";
-    let validInput = false;
-
-    if (e.target.nodeName.toLowerCase() === "button") {
-        input = e.target.value;
-
-        //falta corregir estp, que pasa si ingresan: 10 y luego viene un 0 mas, en ese caso removera el 0 del numero 10 ingresado anteriormente
-        if (INPUT_DISPLAY_ELEMENT.value.charAt(INPUT_DISPLAY_ELEMENT.value.length - 1) === "0") {
-            INPUT_DISPLAY_ELEMENT.value = INPUT_DISPLAY_ELEMENT.value.slice(0, -1);
-        }
-
-
-    } else {
-        input = e.target.parentNode.value;
-    }
-
+function processInput(input) {
 
     if (input !== "()") {
 
-        if (!((e.target.nodeName.toLowerCase() !== "button") && (INPUT_DISPLAY_ELEMENT.value.indexOf(input)) == (INPUT_DISPLAY_ELEMENT.value.length - 1))) {
+        if ("0123456789".includes(input)) { //IT'S A NUMBER
 
-            if (!(INPUT_DISPLAY_ELEMENT.value.length === 0 && "^/*+-".includes(input))) {
+            if (INPUT_DISPLAY_ELEMENT.value.length === 1 && INPUT_DISPLAY_ELEMENT.value === "0") {
+
+                INPUT_DISPLAY_ELEMENT.value = "";
+            }
+
+            INPUT_DISPLAY_ELEMENT.value += input;
+            calculate(INPUT_DISPLAY_ELEMENT.value);
+
+        } else {//IT'S AN OPERATOR
+
+            if (INPUT_DISPLAY_ELEMENT.value.length > 0 && !("^/*+-()".includes(INPUT_DISPLAY_ELEMENT.value.charAt(INPUT_DISPLAY_ELEMENT.value.length - 1)))) {
+
                 INPUT_DISPLAY_ELEMENT.value += input;
                 calculate(INPUT_DISPLAY_ELEMENT.value);
             }
 
         }
+    }
+}
 
+function computeResult(e) {
 
+    const input = (e.target.nodeName.toLowerCase() === "button") ? e.target.value : e.target.parentNode.value;
+    processInput(input);
+}
+
+function clearScreen() {
+    const resultTextBox = document.querySelector(".screen .result");
+
+    INPUT_DISPLAY_ELEMENT.value = "0";
+    resultTextBox.value = "";
+}
+
+function backSpace() {
+
+    let long = INPUT_DISPLAY_ELEMENT.value.length;
+
+    if (long > 0) {
+
+        INPUT_DISPLAY_ELEMENT.value = INPUT_DISPLAY_ELEMENT.value.slice(0, long - 1);
+
+        long = long - 1;
+
+        if (long === 0) {
+
+            clearScreen();
+
+        } else {
+
+            const lastChar = INPUT_DISPLAY_ELEMENT.value.charAt(long - 1);
+            INPUT_DISPLAY_ELEMENT.value = INPUT_DISPLAY_ELEMENT.value.slice(0, long - 1);
+
+            processInput(lastChar);
+        }
+    }
+
+}
+
+function equalResult() {
+
+    const long = INPUT_DISPLAY_ELEMENT.value.length;
+    const lastChar = INPUT_DISPLAY_ELEMENT.value.charAt(long - 1);
+
+    if (!("^/*+-()".includes(lastChar))) {
+
+        const resultTextBox = document.querySelector(".screen .result");
+        INPUT_DISPLAY_ELEMENT.value = resultTextBox.value;
 
     }
+
 }
 
 function turnOn(calcSwitch) {
 
     const screenTxt = document.getElementById("entry");
     const led = document.getElementById('smLedBord');
+    const screenResult = document.querySelector(".screen .result");
 
     calcSwitch.classList.remove('calc-off');
     calcSwitch.classList.add('calc-on');
 
     screenTxt.classList.remove('entryOff');
     screenTxt.classList.add('entryOn');
+
+    screenResult.classList.remove('entryOff');
+    screenResult.classList.add('entryOn');
 
     led.classList.remove('ledOff');
     led.classList.add('ledOn');
@@ -56,7 +103,17 @@ function turnOn(calcSwitch) {
     btnNumbersAndOperators.forEach(key => key.addEventListener("click", computeResult));
 
     const btnAC = document.querySelector(".clear.key");
-    //btnAC.addEventListener(click)
+    btnAC.addEventListener("click", clearScreen);
+
+    const btnErase = document.querySelector(".controls .erase");
+    btnErase.addEventListener("click", backSpace);
+
+    const btnEquals = document.querySelector(".controls .equal");
+    btnEquals.addEventListener("click", equalResult);
+
+    screenResult.value = "";
+
+    INPUT_DISPLAY_ELEMENT.value = "0";
 
 }
 
@@ -64,6 +121,7 @@ function turnOff(calcSwitch) {
 
     const screenTxt = document.getElementById("entry");
     const led = document.getElementById('smLedBord');
+    const screenResult = document.querySelector(".screen .result");
 
     calcSwitch.classList.remove('calc-on');
     calcSwitch.classList.add('calc-off');
@@ -71,8 +129,27 @@ function turnOff(calcSwitch) {
     screenTxt.classList.remove('entryOn');
     screenTxt.classList.add('entryOff');
 
+    screenResult.classList.remove('entryOn');
+    screenResult.classList.add('entryOff');
+
     led.classList.remove('ledOn');
     led.classList.add('ledOff');
+
+    const btnNumbersAndOperators = document.querySelectorAll(".number, .operator");
+    btnNumbersAndOperators.forEach(key => key.removeEventListener("click", computeResult));
+
+    const btnAC = document.querySelector(".clear.key");
+    btnAC.removeEventListener("click", clearScreen);
+
+    const btnErase = document.querySelector(".controls .erase");
+    btnErase.removeEventListener("click", backSpace);
+
+    const btnEquals = document.querySelector(".controls .equal");
+    btnEquals.removeEventListener("click", equalResult);
+
+
+
+    //INPUT_DISPLAY_ELEMENT.value = "";
 
 }
 
