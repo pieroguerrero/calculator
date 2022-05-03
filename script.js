@@ -1,4 +1,4 @@
-
+debugger
 //ordered according their operation precendece
 const ORDERED_OPERATORS_LIST = [["^", ""], ["/", "*"], ["+", "-"]];
 const INPUT_DISPLAY_ELEMENT = document.getElementById("entry");
